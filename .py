@@ -6,6 +6,9 @@ def translate_to_braille(text_input):
         'p': '111100', 'q': '111110', 'r': '111010', 's': '011100', 't': '011110',
         'u': '101001', 'v': '111001', 'w': '010111', 'x': '101101', 'y': '101111', 
         'z': '101011', ' ': '000000'
+
+        # Add these right into your existing braille_dict:
+'.': '001011', ',': '010000', '!': '011010', '?': '011001', '-': '001001'
     }
     
     # Braille maps numbers 1-9 and 0 to the letters a-j
