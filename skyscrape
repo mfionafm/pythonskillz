@@ -1,0 +1,28 @@
+def solution(x, y):
+    # Convert the input strings to integers
+    m = int(x)
+    f = int(y)
+    generations = 0
+    
+    while m > 1 and f > 1:
+        if m > f:
+            # How many times does f fit into m?
+            generations += m // f
+            # What is left over becomes the new m
+            m = m % f
+        else:
+            # How many times does m fit into f?
+            generations += f // m
+            f = f % m
+            
+    # We broke out of the loop, meaning m or f (or both) hit 1 or lower.
+    # Check if we successfully reached the ground floor boundary
+    if m == 1:
+        generations += (f - 1)
+        return str(generations)
+    elif f == 1:
+        generations += (m - 1)
+        return str(generations)
+    else:
+        # If we hit 0 or a negative, it was an impossible target
+        return "impossible"
