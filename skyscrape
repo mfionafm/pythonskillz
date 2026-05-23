@@ -2,6 +2,10 @@ def solution(x, y):
     # Convert the input strings to integers
     m = int(x)
     f = int(y)
+    
+    if m < 1 or f < 1:
+        return "impossible"
+        
     generations = 0
     
     while m > 1 and f > 1:
