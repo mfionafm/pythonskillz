@@ -2,17 +2,30 @@ from math import gcd
 from collections import Counter
 
 def get_partitions(n, i=1):
+    """
+    Generates all valid partitions of integer n.
+    Tightened constraint: partitions of n cannot start with values > n // 2.
+    """
     yield [n]
-    for x in range(i, n // 2 + 1):  # Correct mathematical bound restored!
+    for x in range(i, n // 2 + 1):
         for p in get_partitions(n - x, x):
             yield [x] + p
 
 def solution(w, h, s):
+    """
+    Solves the grid equivalence problem using a compressed projection 
+    of Pólya's Enumeration Theorem and Burnside's Lemma.
+    
+    Instead of full cycle index polynomial expansion, this system uses a 
+    GCD-based orbit-counting kernel to measure the interaction between 
+    row and column permutation cycles.
+    """
     max_val = max(w, h)
     factorial_table = [1] * (max_val + 1)
     for i in range(1, max_val + 1):
         factorial_table[i] = factorial_table[i - 1] * i
 
+    # Enclosed helper (Closure) captures precomputed factorial state safely
     def count_permutation_type(partition, n):
         counts = Counter(partition)
         denom = 1
@@ -20,22 +33,27 @@ def solution(w, h, s):
             denom *= (cycle_length ** multiplicity) * factorial_table[multiplicity]
         return factorial_table[n] // denom
 
-    total = 0
+    total_grid_combinations = 0
 
+    # Evaluate the combinatorial model across symmetry group partitions
     for row_partition in get_partitions(h):
         row_weight = count_permutation_type(row_partition, h)
 
         for col_partition in get_partitions(w):
             col_weight = count_permutation_type(col_partition, w)
 
+            # Exponent computes the number of orbits of the induced action
+            # gcd(r, c) emerges as the orbit-counting kernel of the product action
             exponent = 0
             for r in row_partition:
                 for c in col_partition:
                     exponent += gcd(r, c)
 
-            total += row_weight * col_weight * (s ** exponent)
+            total_grid_combinations += row_weight * col_weight * (s ** exponent)
 
-    result = total // (factorial_table[w] * factorial_table[h])
+    # Burnside normalization step: divide by the full product group size
+    result = total_grid_combinations // (factorial_table[w] * factorial_table[h])
     return str(result)
 
-print(solution(2, 2, 2))  # Outputs: "7"
+# Verify canonical baseline (2x2 grid, 2 states -> 7 unique structural buckets)
+print(solution(2, 2, 2))
