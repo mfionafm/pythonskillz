@@ -23,6 +23,7 @@ def factorial_table_upto(n):
 def permutation_class_size(partition, n, fact):
     """
     Canonical symmetric group conjugacy class size:
+
     |S_n| / (∏ k^{m_k} m_k!)
     """
     counts = Counter(partition)
@@ -42,6 +43,9 @@ def gcd_orbit_kernel(row_cycles, col_cycles):
     structure using gcd as the invariant interaction measure.
 
     This is a projection of full cycle-index interaction structure.
+    
+    COGNITIVE SCAFFOLDING NOTE:
+    Destined for Burnside's Lemma (Mr. Brightside by The Killers :)).
     """
     total = 0
     for r in row_cycles:
