@@ -3,10 +3,6 @@ from collections import Counter
 
 
 def get_partitions(n, i=1):
-    """
-    Generate integer partitions of n in non-decreasing order.
-    Corresponds to conjugacy classes of S_n.
-    """
     yield [n]
     for x in range(i, n // 2 + 1):
         for p in get_partitions(n - x, x):
@@ -14,39 +10,29 @@ def get_partitions(n, i=1):
 
 
 def factorial_table_upto(n):
-    """Precompute factorials for conjugacy class size calculations."""
     fact = [1] * (n + 1)
     for i in range(1, n + 1):
         fact[i] = fact[i - 1] * i
     return fact
 
 
-def permutation_class_size(partition, n, fact):
+def conjugacy_class_size(partition, n, fact):
     """
-    Size of conjugacy class in S_n:
-    |S_n| / (∏ k^{m_k} * m_k!)
+    |S_n| / z_lambda where z_lambda = ∏ k^m_k m_k!
     """
     counts = Counter(partition)
 
     denom = 1
-    for cycle_len, multiplicity in counts.items():
-        denom *= (cycle_len ** multiplicity) * fact[multiplicity]
+    for k, m in counts.items():
+        denom *= (k ** m) * fact[m]
 
     return fact[n] // denom
 
 
-def grid_cycle_kernel(row_cycles, col_cycles):
+def orbit_exponent(row_cycles, col_cycles):
     """
-    Pairwise cycle interaction kernel.
-
-    IMPORTANT CLARIFICATION:
-    This computes the sum of cycle-pair contributions:
-        gcd(r, c)
-
-    This is a valid local orbit contribution for a single (r, c) cycle pair,
-    but is NOT, by itself, a full proof of global cycle-index factorization.
-
-    It is used here as a modeling assumption consistent with product-action structure.
+    Exact cycle-index evaluation of the product action:
+    each (r, c) contributes gcd(r, c)
     """
     total = 0
     for r in row_cycles:
@@ -56,32 +42,21 @@ def grid_cycle_kernel(row_cycles, col_cycles):
 
 
 def solution(w, h, s):
-    """
-    Burnside-style enumeration over S_w × S_h using:
-    - partition-based conjugacy class grouping
-    - class size weighting
-    - cycle-pair interaction kernel (gcd-based)
-
-    NOTE:
-    This is a structured compression of the full permutation action.
-    """
-    max_val = max(w, h)
-    fact = factorial_table_upto(max_val)
+    fact = factorial_table_upto(max(w, h))
 
     total = 0
 
-    for row_partition in get_partitions(h):
-        row_weight = permutation_class_size(row_partition, h, fact)
+    for row_part in get_partitions(h):
+        row_weight = conjugacy_class_size(row_part, h, fact)
 
-        for col_partition in get_partitions(w):
-            col_weight = permutation_class_size(col_partition, w, fact)
+        for col_part in get_partitions(w):
+            col_weight = conjugacy_class_size(col_part, w, fact)
 
-            exponent = grid_cycle_kernel(row_partition, col_partition)
+            exp = orbit_exponent(row_part, col_part)
 
-            total += row_weight * col_weight * (s ** exponent)
+            total += row_weight * col_weight * (s ** exp)
 
     return str(total // (fact[w] * fact[h]))
 
 
-# sanity check
 print(solution(2, 2, 2))  # "7"
