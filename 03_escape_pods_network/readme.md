@@ -1,9 +1,20 @@
-# Network Flow & Bottleneck Router (Escape Pods)
+# Network Flow & Bottleneck Matrix Router
 
-## Project Overview
-A network routing solution modeled on the Ford-Fulkerson algorithm to compute the absolute maximum flow of data or entities through a constrained transit matrix.
+A network routing architecture modeled on the Ford-Fulkerson algorithm to compute maximum capacity metrics across constrained, directed graph transit networks.
 
-## Core Architectural Solutions
-* **Single-Checkpoint Simplification:** Unifies complex multi-source (ingress) and multi-drain (egress) matrix environments into a single stream by implementing a virtual "Super-Source" (Basement) and "Super-Sink" (Roof).
-* **Compilation Stability:** Replaces volatile floating-point boundaries (`float('inf')`) with a secure integer infinity barrier (`INF = 2000000000`) to guarantee execution stability across different runtimes.
-* **Deterministic Flow Mapping:** Tracks state saturation iteratively across forward paths using Breadth-First Search (BFS) while updating reverse paths to handle network traffic adjustments efficiently.
+## 📌 Project Overview
+This project addresses structural transport bottlenecks within multi-ingress (starting points) and multi-egress (exit points) matrix layouts. In highly redundant networks, local pipe saturation easily causes systemic gridlock. The solution introduces virtual boundaries to simplify network tracking and leverages residual traffic mapping to ensure maximum data flow.
+
+### Technical Specifications
+* **Input Constraints:** Ingress node arrays, egress node arrays, and a 2D capacity adjacency matrix (up to 50x50).
+* **Throughput Capacity:** Processes individual corridor widths scale-bounded between 0 and 2,000,000 units.
+* **Architecture:** Employs a Breadth-First Search (BFS) shortest-path scout loop.
+
+---
+
+## ⚙️ Core Logic Flow
+The router optimizes system throughput by funneling and balancing the flow matrix:
+
+1. **Virtual Node Aggregation:** Normalizes complex multi-source networks by generating a virtual "Super-Source" (Basement) and "Super-Sink" (Roof) with infinite capacities, simplifying graph traversal into a single-checkpoint pipeline.
+2. **Compilation Stability Invariant:** Explicitly enforces a secure integer infinity barrier (`INF = 2000000000`) instead of floating-point boundaries (`float('inf')`), ensuring numerical stability and cross-compiler consistency.
+3. **Residual Capacitation Protocol:** Updates the network map dynamically by subtracting saturated volumes from forward paths while opening inverse return valves, allowing the routing engine to automatically recalculate around emerging bottlenecks.
