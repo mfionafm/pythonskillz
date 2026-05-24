@@ -1,0 +1,41 @@
+from math import gcd
+from collections import Counter
+
+def get_partitions(n, i=1):
+    yield [n]
+    for x in range(i, n // 2 + 1):  # Correct mathematical bound restored!
+        for p in get_partitions(n - x, x):
+            yield [x] + p
+
+def solution(w, h, s):
+    max_val = max(w, h)
+    factorial_table = [1] * (max_val + 1)
+    for i in range(1, max_val + 1):
+        factorial_table[i] = factorial_table[i - 1] * i
+
+    def count_permutation_type(partition, n):
+        counts = Counter(partition)
+        denom = 1
+        for cycle_length, multiplicity in counts.items():
+            denom *= (cycle_length ** multiplicity) * factorial_table[multiplicity]
+        return factorial_table[n] // denom
+
+    total = 0
+
+    for row_partition in get_partitions(h):
+        row_weight = count_permutation_type(row_partition, h)
+
+        for col_partition in get_partitions(w):
+            col_weight = count_permutation_type(col_partition, w)
+
+            exponent = 0
+            for r in row_partition:
+                for c in col_partition:
+                    exponent += gcd(r, c)
+
+            total += row_weight * col_weight * (s ** exponent)
+
+    result = total // (factorial_table[w] * factorial_table[h])
+    return str(result)
+
+print(solution(2, 2, 2))  # Outputs: "7"
