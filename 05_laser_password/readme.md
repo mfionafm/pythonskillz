@@ -16,9 +16,3 @@ The engine enforces absolute mathematical precision across an arbitrary-precisio
    \[\frac{1}{p} + \frac{1}{q} = 1\]
 2. **Recursive Domain Reduction:** Implements a recursive identity step based on Beatty sequence mirroring. Every iteration multiplies the target problem space by a factor of \((\sqrt{2} - 1) \approx 0.4142\), compressing the 101-digit string length logarithmically.
 3. **Fixed-Point Scaling Kernel:** Bypasses standard floating-point precision loss limits by utilizing high-precision integer scaling multipliers up to 105 decimal places (\(10^{101}\) denominator shift factor).
-
-## 💻 Source Implementation
-
-Create a file named `solution.py` inside your repository and paste the following implementation:
-
-``
