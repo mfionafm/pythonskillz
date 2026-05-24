@@ -25,4 +25,3 @@ def solution(str_n):
     total_sum = transform_sum(int(str_n))
     return str(total_sum)
 ```
-Use code with caution.
