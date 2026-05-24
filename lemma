@@ -1,73 +1,87 @@
 from math import gcd
 from collections import Counter
 
+
 def get_partitions(n, i=1):
     """
-    Generates all valid partitions of integer n.
-    Tightened constraint: partitions of n cannot start with values > n // 2.
+    Generate integer partitions of n in non-decreasing order.
+    This corresponds to conjugacy class structure of S_n.
     """
     yield [n]
     for x in range(i, n // 2 + 1):
         for p in get_partitions(n - x, x):
             yield [x] + p
 
+
+def factorial_table_upto(n):
+    fact = [1] * (n + 1)
+    for i in range(1, n + 1):
+        fact[i] = fact[i - 1] * i
+    return fact
+
+
+def permutation_class_size(partition, n, fact):
+    """
+    Canonical symmetric group conjugacy class size:
+    |S_n| / (∏ k^{m_k} m_k!)
+    """
+    counts = Counter(partition)
+
+    denom = 1
+    for cycle_len, multiplicity in counts.items():
+        denom *= (cycle_len ** multiplicity) * fact[multiplicity]
+
+    return fact[n] // denom
+
+
+def gcd_orbit_kernel(row_cycles, col_cycles):
+    """
+    Compressed interaction model (your contribution):
+
+    Approximates orbit coupling between row-cycle and column-cycle
+    structure using gcd as the invariant interaction measure.
+
+    This is a projection of full cycle-index interaction structure.
+    """
+    total = 0
+    for r in row_cycles:
+        for c in col_cycles:
+            total += gcd(r, c)
+    return total
+
+
 def solution(w, h, s):
     """
-    Solves the grid equivalence problem using a compressed projection 
-    of Pólya's Enumeration Theorem and Burnside's Lemma.
-    
-    ARCHITECTURAL NOTE FOR ENGINEERING TEAM:
-    This implementation utilizes a compressed GCD-based orbit-counting kernel 
-    projected from the standard Pólya/Burnside framework. 
-    
-    TRADE-OFF ANALYSIS:
-    - Advantage: Avoids full cycle index polynomial expansion, reducing 
-      computational complexity to O(partitions) for high-speed execution.
-    - Constraint: Relies on the mathematical invariant that gcd(r, c) tightly 
-      bounds the orbit splitting of product cyclic groups in this specific space.
-      
-    If this system needs to scale to non-symmetric group actions or multi-dimensional 
-    tensor grids, this optimization must be refactored back to a canonical 
-    Pólya formulation to prevent structural brittleness.
-    
-    Current Build Status: Air-tight.
-    Current Soundtrack: Mr. Brightside by The Killers (Destined for Burnside's Lemma).
+    Hybrid Pólya/Burnside model:
+
+    Canonical layer:
+        - conjugacy class enumeration via integer partitions
+        - symmetric group weighting
+
+    Compressed layer:
+        - gcd-based orbit interaction kernel
+
+    Final step:
+        Burnside normalization over S_w × S_h
     """
-    # 1. High-speed lookup table with safety margin for multiplicity scaling
-    max_val = max(w, h, 12)
-    factorial_table = [1] * (max_val + 1)
-    for i in range(1, max_val + 1):
-        factorial_table[i] = factorial_table[i - 1] * i
+    max_val = max(w, h)
+    fact = factorial_table_upto(max_val)
 
-    # 2. Closure Helper: Safely captures precomputed factorial state
-    def count_permutation_type(partition, n):
-        counts = Counter(partition)
-        denom = 1
-        for cycle_length, multiplicity in counts.items():
-            # Factorial_table access is fully scoped and safe here
-            denom *= (cycle_length ** multiplicity) * factorial_table[multiplicity]
-        return factorial_table[n] // denom
+    total = 0
 
-    total_grid_combinations = 0
-
-    # 3. Execute the combinatorial model loops
     for row_partition in get_partitions(h):
-        row_weight = count_permutation_type(row_partition, h)
+        row_weight = permutation_class_size(row_partition, h, fact)
 
         for col_partition in get_partitions(w):
-            col_weight = count_permutation_type(col_partition, w)
+            col_weight = permutation_class_size(col_partition, w, fact)
 
-            # Exponent computes the number of orbits of the induced action
-            exponent = 0
-            for r in row_partition:
-                for c in col_partition:
-                    exponent += gcd(r, c)
+            exponent = gcd_orbit_kernel(row_partition, col_partition)
 
-            total_grid_combinations += row_weight * col_weight * (s ** exponent)
+            total += row_weight * col_weight * (s ** exponent)
 
-    # 4. Burnside normalization step: divide by the full product group size
-    result = total_grid_combinations // (factorial_table[w] * factorial_table[h])
-    return str(result)
+    group_size = fact[w] * fact[h]
+    return str(total // group_size)
 
-# Verify canonical baseline (2x2 grid, 2 states -> 7 unique structural buckets)
-print(solution(2, 2, 2))
+
+# sanity check
+print(solution(2, 2, 2))  # "7"
