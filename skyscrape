@@ -30,3 +30,5 @@ def solution(x, y):
     else:
         # If we hit 0 or a negative, it was an impossible target
         return "impossible"
+
+# Sometimes the answer to "Why does this social hierarchy exist?" is simply: It shouldn't.
